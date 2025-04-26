@@ -2,7 +2,6 @@ package com.example.finalproject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Scanner;
@@ -39,10 +38,10 @@ public class QuestionBank {
     }
 
     public void printAllQuestions(){
-        ListIterator iterator = this.getQuestions().listIterator();
+        ListIterator<Question> iterator = this.getQuestions().listIterator();
         while(iterator.hasNext()){
             Question q = (Question) iterator.next();
-            q.toString();
+            System.out.println(q);;
         }
     }
 
@@ -70,12 +69,41 @@ public class QuestionBank {
                 String correctAnswer = line.substring(4).trim();
 
                 MCQuestion myQuestion = new MCQuestion(questionText, correctAnswer, QuestionType.MCQ, options);
-                System.out.println(myQuestion);
-                //this.getQuestions().add(myQuestion);
+                this.getQuestions().add(myQuestion);
             }
 
         }catch(FileNotFoundException ex){
             System.out.println("ERROR - File " + fname + " Not Found");
         }
+    }
+    public void readTFQ(String fname){
+        try{
+            File file = new File(fname);
+            Scanner reader = new Scanner(file);
+
+
+            while(reader.hasNext()){
+                String line = reader.nextLine().trim();
+                String questionText = line.substring(3).trim();
+
+                line = reader.nextLine().trim();
+                String correctAnswer = line.substring(4).trim();
+
+                TFQuestion myQuestion = new TFQuestion(questionText, correctAnswer, QuestionType.TFQ);
+                this.getQuestions().add(myQuestion);
+            }
+
+        }catch(FileNotFoundException ex){
+            System.out.println("ERROR - File " + fname + " Not Found");
+        }
+    }
+
+    public LinkedList<Question> selectRandQuestions(int[] indices){
+        LinkedList<Question> list = new LinkedList<>();
+        for(int i = 0; i < indices.length; i++){
+            list.add(this.getQuestions().get(indices[i]));
+        }
+
+        return list;
     }
 }

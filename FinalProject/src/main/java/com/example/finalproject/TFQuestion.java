@@ -15,7 +15,7 @@ public class TFQuestion extends Question{
         return "TFQuestion{" + '\n' +
                 "questionText = " + super.getQuestionText() + '\n' +
                 "correctAnswer = " + super.getCorrectAnswer() + '\n' +
-                "questionType = " + super.getQuestionType() +
+                "questionType = " + super.getQuestionType() + '\n' +
                 "}";
     }
 }
