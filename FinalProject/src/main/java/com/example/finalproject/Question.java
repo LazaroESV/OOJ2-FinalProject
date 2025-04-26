@@ -46,7 +46,7 @@ public class Question {
         return "Question{" + '\n' +
                 "questionText = " + questionText + '\n' +
                 "correctAnswer = " + correctAnswer + '\n' +
-                "questionType = " + questionType +
+                "questionType = " + questionType + '\n' +
                 '}';
     }
 }

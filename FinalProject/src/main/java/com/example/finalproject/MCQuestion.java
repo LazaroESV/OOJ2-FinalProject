@@ -32,7 +32,7 @@ public class MCQuestion extends Question{
                 "questionText = " + super.getQuestionText() + '\n' +
                 "correctAnswer = " + super.getCorrectAnswer() + '\n' +
                 "questionType = " + super.getQuestionType() + '\n' +
-                "options = " + options +
+                "options = " + options + '\n' +
                 '}';
     }
 }
