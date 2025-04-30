@@ -50,7 +50,6 @@ public class QuestionBank {
             File file = new File(fname);
             Scanner reader = new Scanner(file);
 
-
             while(reader.hasNext()){
                 String line = reader.nextLine().trim();
                 String questionText = line.substring(3).trim();
