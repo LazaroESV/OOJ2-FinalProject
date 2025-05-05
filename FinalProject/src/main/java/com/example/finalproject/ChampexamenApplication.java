@@ -1,6 +1,8 @@
 package com.example.finalproject;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -11,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
 public class ChampexamenApplication extends Application {
     // Data Fields
@@ -26,28 +29,28 @@ public class ChampexamenApplication extends Application {
         HBox topBanner = buildTopBanner();
         topBanner.setAlignment(Pos.CENTER);
 
-        Label ShowingGrade = new Label("Grade: Not submitted yet");
-        Label gradeAns = new Label("");
-        HBox gradeBox = new HBox(labelShowingGrade);
-        grade.setAlignment(Pos.CENTER);
+        Label gradeTxt = new Label("Grade:");
+        labelShowingGrade = new Label("");
+        HBox gradeBox = new HBox(5, gradeTxt, labelShowingGrade);
+        gradeBox.setAlignment(Pos.CENTER);
 
         QuestionBank myBank = new QuestionBank();
         myBank.readMCQ("src/main/resources/mcq.txt");
         myBank.readTFQ("src/main/resources/tfq.txt");
 
-        //Question 13
         int[] indices = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        exam = new Exam(bank.selectRandQuestions(indices));
+        exam = new Exam(myBank.selectRandQuestions(indices));
 
-        VBox[] pages = createExamPage(exam);
-        VBox allQuestions = new VBox(15);
+        questionVBoxes = createExamPage(exam);
+        VBox allQuestions = new VBox(30);
 
-        for(VBox qBox : pages){
+        for(VBox qBox : questionVBoxes){
             allQuestions.getChildren().add(qBox);
         }
 
         ScrollPane scrollPane = new ScrollPane(allQuestions);
-        scrollPane.setFitToWidht(true);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-padding: 20px;");
 
         HBox navBar = buildNavigationBar();
         navBar.setAlignment(Pos.CENTER);
@@ -59,26 +62,83 @@ public class ChampexamenApplication extends Application {
         stage.show();
     }
 
-    //Question 11
+    public VBox buildTFQ(int questionNumber, TFQuestion q){
+        Label prompt = new Label((questionNumber+1) + ") (True/False) " + q.getQuestionText());
+
+        CheckBox[] answers = new CheckBox[2];
+
+        CheckBox t = new CheckBox("True");
+        answers[0] = t;
+
+        CheckBox f = new CheckBox("False");
+        answers[1] = f;
+
+        t.setOnAction(e -> {
+            answers[1].setSelected(false);
+            setQuestionAnswer(questionNumber, "T");
+        });
+        f.setOnAction(e -> {
+            answers[0].setSelected(false);
+            setQuestionAnswer(questionNumber, "F");
+        });
+
+        HBox buttons = new HBox(10, t, f);
+
+        return new VBox(10, prompt, buttons);
+    }
+    public VBox buildMCQ(int questionNumber, MCQuestion q){
+        Label prompt = new Label((questionNumber+1) + ") " + q.getQuestionText());
+        VBox mcq = new VBox(10, prompt);
+
+        LinkedList<String> opts = ((MCQuestion) q).getOptions();
+        ToggleGroup group = new ToggleGroup();
+
+        for(int i = 0; i < opts.size(); i++) {
+            RadioButton option = new RadioButton(opts.get(i));
+            option.setToggleGroup(group);
+
+            String txt = "";
+            if(i == 0){
+                txt = "A";
+            }else if(i == 1){
+                txt = "B";
+            }else if(i == 2){
+                txt = "C";
+            }else if(i == 3){
+                txt = "D";
+            }else{
+                txt = "E";
+            }
+
+            String finalTxt = txt;
+            option.setOnAction(e -> setQuestionAnswer(questionNumber, finalTxt));
+            mcq.getChildren().add(option);
+        }
+
+        return mcq;
+    }
+
     public VBox[] createExamPage(Exam exam){
         int size = exam.getQuestions().size();
-        VBox[] questionsBoxes = new VBox[size];
+        VBox[] questionBoxes = new VBox[size];
 
         for(int i = 0; i<size; i++){
             Question q = exam.getQuestion(i);
-            if(q instanceof TFQuestion){
-                questionBoxes[i] = buildTrueFalseQ(i, (TFQuestion) q);
-            } else if(q instanceof MCQuestion){
-                questionsBoxes[i] = buildMCQ(i, (MCQuestion) q);
+            if(q.getQuestionType() == QuestionType.TFQ){
+                questionBoxes[i] = buildTFQ(i, (TFQuestion) q);
+
+            } else if(q.getQuestionType() == QuestionType.MCQ){
+                questionBoxes[i] = buildMCQ(i, (MCQuestion) q);
+
             } else{
                 Label error = new Label("Unsupported question type");
-                questionsBoxes[i] = new VBox(error);
+                questionBoxes[i] = new VBox(error);
             }
         }
         return questionBoxes;
     }
 
-    public static HBox buildTopBanner(){
+    public HBox buildTopBanner(){
         Image logoImg = new Image("logo.png");
         ImageView logo = new ImageView(logoImg);
         logo.setPreserveRatio(true);
@@ -92,18 +152,25 @@ public class ChampexamenApplication extends Application {
         return new HBox(30, logo, banner);
     }
     
-    public static HBox buildNavigationBar(){
+    public HBox buildNavigationBar(){
         Button clear = new Button("Clear");
         Button save = new Button("Save");
         Button submit = new Button("Submit");
 
-        //Grade Submission Logic
+        clear.setOnAction(e -> clearExamAnswers());
+        save.setOnAction(e -> saveExamAnswers());
         submit.setOnAction(new SubmitButtonHandler());
 
         return new HBox(10, clear, save, submit);
     }
-    
-    public static MenuBar buildMenu(){
+
+    private void clearExamAnswers() {
+    }
+
+    private void saveExamAnswers() {
+    }
+
+    public MenuBar buildMenu(){
         Menu file = new Menu("File");
         MenuItem open = new MenuItem("Open");
         MenuItem save = new MenuItem("Save");
@@ -138,14 +205,15 @@ public class ChampexamenApplication extends Application {
         exam.getSubmittedAnswers().put(questionNumber,answer);
     }
 
-    //Question 12
-    class SubmitButtonHandler implements EventHandler<ActionEvent>{
+    class SubmitButtonHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent e){
+            System.out.println(exam.getSubmittedAnswers());
+
             int correct = 0;
             int total = exam.getQuestions().size();
 
-            for(int i = 0; i<total; i++){
+            for(int i = 0; i < total; i++){
                 Question q = exam.getQuestion(i);
                 String submitted = exam.getSubmittedAnswer(i);
                 if(submitted != null && submitted.equalsIgnoreCase(q.getCorrectAnswer())){
