@@ -25,11 +25,14 @@ public class Exam {
         this.questions = new HashMap<>();
         this.submittedAnswers = new HashMap<>();
 
+
         ListIterator<Question> iterator = qList.listIterator();
         int i = 0;
         while(iterator.hasNext()){
             this.questions.put(i, iterator.next());
+            i++;
         }
+
     }
 
     // Mutators & Accessors
