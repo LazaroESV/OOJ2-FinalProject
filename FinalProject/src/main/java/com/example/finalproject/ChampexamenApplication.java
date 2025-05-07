@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class ChampexamenApplication extends Application {
@@ -21,6 +22,28 @@ public class ChampexamenApplication extends Application {
     private Label labelShowingGrade;
     private VBox[] questionVBoxes;
     private VBox root;
+    private VBox allQuestions;
+    private ArrayList<String> savedState = new ArrayList<>();
+    private ArrayList<String> attempts = new ArrayList<>();
+
+
+    // Settings
+    private int width = 1080;
+    private int height = 600;
+
+    // Menu Items
+    MenuItem open;
+    MenuItem save;
+    MenuItem exit;
+    MenuItem cut;
+    MenuItem copy;
+    MenuItem paste;
+    MenuItem startQuiz;
+    MenuItem viewResults;
+    MenuItem settings;
+    MenuItem about;
+    MenuItem helpContent;
+    MenuItem aboutApp;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -42,7 +65,7 @@ public class ChampexamenApplication extends Application {
         exam = new Exam(myBank.selectRandQuestions(indices));
 
         questionVBoxes = createExamPage(exam);
-        VBox allQuestions = new VBox(30);
+        allQuestions = new VBox(30);
 
         for(VBox qBox : questionVBoxes){
             allQuestions.getChildren().add(qBox);
@@ -52,11 +75,98 @@ public class ChampexamenApplication extends Application {
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-padding: 20px;");
 
+
+        // Set the menu actions
+        exit.setOnAction(e -> {
+            stage.close();
+        });
+
+        aboutApp.setOnAction(e -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, """
+                    Authors: \
+                    
+                    - José Santiago Arevalo Morales\
+                    
+                    - Lazaro Ernesto Sagarra Valdes\
+                    
+                    Version: 3.2""");
+            alert.setTitle("About This App");
+            alert.setHeaderText("Champexamen Quiz App©");
+            alert.show();
+        });
+
+        save.setOnAction(e -> {
+            saveExamAnswers();
+        });
+        open.setOnAction(e -> {
+            clearExamAnswers();
+        });
+
+        startQuiz.setOnAction(e -> {
+            ChampexamenApplication app = new ChampexamenApplication();
+            try {
+                app.start(stage);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        cut.setOnAction(e -> {
+            saveExamAnswers();
+            clearExamAnswers();
+        });
+        copy.setOnAction(e -> {
+            saveExamAnswers();
+        });
+        paste.setOnAction(e -> {
+            System.out.println("These are the copied answers:");
+            for (String s : savedState) {
+                if(s != null){
+                    System.out.println(s);
+                }else{
+                    System.out.println("Not answered");
+                }
+            }
+        });
+
+        viewResults.setOnAction(e -> {
+            for (String attempt : attempts) {
+                System.out.println(attempt);
+            }
+        });
+
+        settings.setOnAction(e -> {
+            Stage window = new Stage();
+
+            Label wTxt = new Label("Width: ");
+            wTxt.setAlignment(Pos.CENTER);
+            Slider wSlide = new Slider(100.0, 600.0, 600.0);
+            VBox width = new VBox(10, wTxt, wSlide);
+
+            Label hTxt = new Label("Height: ");
+            hTxt.setAlignment(Pos.CENTER);
+            Slider hSlide = new Slider(500.0, 1080.0, 1080.0);
+            VBox height = new VBox(10, hTxt, hSlide);
+
+            Button btn = new Button("Save");
+            btn.setAlignment(Pos.CENTER);
+
+            VBox mainBox = new VBox(30, width, height, btn);
+            mainBox.setAlignment(Pos.CENTER);
+
+            Scene scene = new Scene(mainBox, 300, 300);
+            window.setTitle("Settings");
+            window.setScene(scene);
+
+            window.show();
+        });
+        //
+
         HBox navBar = buildNavigationBar();
         navBar.setAlignment(Pos.CENTER);
 
         root = new VBox(10, menu, topBanner, gradeBox, scrollPane, navBar);
-        Scene scene = new Scene(root, 1080, 600);
+        Scene scene = new Scene(root, width, height);
         stage.setTitle("Champexamen: Champs Testing App");
         stage.setScene(scene);
         stage.show();
@@ -165,37 +275,60 @@ public class ChampexamenApplication extends Application {
     }
 
     private void clearExamAnswers() {
+        exam.getSubmittedAnswers().clear();
+        for (VBox qBox : questionVBoxes) {
+            qBox.getChildren().forEach(e -> {
+                if (e instanceof RadioButton rb){
+                    rb.setSelected(false);
+                }
+                if (e instanceof CheckBox cb){
+                    cb.setSelected(false);
+                }
+            });
+        }
+        labelShowingGrade.setText("");
     }
 
     private void saveExamAnswers() {
+        System.out.println("Saved Answers:");
+
+        for (int i = 0; i < exam.getQuestions().size(); i++) {
+            String ans = exam.getSubmittedAnswer(i);
+            savedState.add(ans);
+            System.out.println((i + 1) + ": " + (ans != null ? ans : "Not answered"));
+        }
     }
+
+
+
 
     public MenuBar buildMenu(){
         Menu file = new Menu("File");
-        MenuItem open = new MenuItem("Open");
-        MenuItem save = new MenuItem("Save");
-        MenuItem exit = new MenuItem("Exit");
+        open = new MenuItem("Open");
+        save = new MenuItem("Save");
+        exit = new MenuItem("Exit");
+
         file.getItems().addAll(open, save, exit);
 
         Menu edit = new Menu("Edit");
-        MenuItem cut = new MenuItem("Cut");
-        MenuItem copy = new MenuItem("Copy");
-        MenuItem paste = new MenuItem("Paste");
+        cut = new MenuItem("Cut");
+        copy = new MenuItem("Copy");
+        paste = new MenuItem("Paste");
         edit.getItems().addAll(cut, copy, paste);
 
         Menu quiz = new Menu("Quiz");
-        MenuItem startQuiz = new MenuItem("Start Quiz");
-        MenuItem viewResults = new MenuItem("View Results");
+        startQuiz = new MenuItem("Start Quiz");
+        viewResults = new MenuItem("View Results");
         quiz.getItems().addAll(startQuiz, viewResults);
 
         Menu extras = new Menu("Extras");
-        MenuItem settings = new MenuItem("Settings");
-        MenuItem about = new MenuItem("About");
+        settings = new MenuItem("Settings");
+        about = new MenuItem("About");
         extras.getItems().addAll(settings, about);
 
         Menu help = new Menu("Help");
-        MenuItem helpContent = new MenuItem("Help Content");
-        MenuItem aboutApp = new MenuItem("About App");
+        helpContent = new MenuItem("Help Content");
+        aboutApp = new MenuItem("About App");
         help.getItems().addAll(helpContent, aboutApp);
 
         return new MenuBar(file, edit, quiz, extras, help);
@@ -221,7 +354,9 @@ public class ChampexamenApplication extends Application {
                 }
             }
             double grade = (correct / (double) total) * 100;
-            labelShowingGrade.setText("Grade: " + String.format("%.2f", grade) + "%"); 
+            String attemptNumber = String.valueOf(attempts.size() + 1);
+            attempts.add("Attempt #" + attemptNumber + ", Grade: " + grade + "%");
+            labelShowingGrade.setText(String.format("%.2f", grade) + "%");
         }
     }
 
