@@ -35,8 +35,8 @@ public class ChampexamenApplication extends Application {
         gradeBox.setAlignment(Pos.CENTER);
 
         QuestionBank myBank = new QuestionBank();
-        myBank.readMCQ("src/main/resources/mcq.txt");
-        myBank.readTFQ("src/main/resources/tfq.txt");
+        myBank.readMCQ("E:\\Champlain College\\Winter 2025 Semester\\Java 2\\FinalProject\\FinalProject\\src\\main\\resources\\mcq.txt");
+        myBank.readTFQ("E:\\Champlain College\\Winter 2025 Semester\\Java 2\\FinalProject\\FinalProject\\src\\main\\resources\\tfq.txt");
 
         int[] indices = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         exam = new Exam(myBank.selectRandQuestions(indices));
@@ -140,17 +140,17 @@ public class ChampexamenApplication extends Application {
     }
 
     public HBox buildTopBanner() {
-        Image logoImg = new Image("logo.png");
+        Image logoImg = new Image("CHAMPEXAMLOGO.png");
         ImageView logo = new ImageView(logoImg);
         logo.setPreserveRatio(true);
-        logo.setFitWidth(300);
+        logo.setFitWidth(150);
 
-        Image bannerImg = new Image("banner.png");
+        Image bannerImg = new Image("QuizTimeBanner.png");
         ImageView banner = new ImageView(bannerImg);
         banner.setPreserveRatio(true);
-        banner.setFitWidth(600);
+        banner.setFitWidth(150);
 
-        return new HBox(30, logo, banner);
+        return new HBox(50, logo, banner);
     }
 
     public HBox buildNavigationBar() {

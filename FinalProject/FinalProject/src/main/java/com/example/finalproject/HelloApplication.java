@@ -12,7 +12,7 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         QuestionBank myBank = new QuestionBank();
-        myBank.readMCQ("E:\\Champlain College\\Winter 2025 Semester\\Java 2\\FinalProject\\FinalProject\\src\\main\\resources");
+        myBank.readMCQ("E:\\Champlain College\\Winter 2025 Semester\\Java 2\\FinalProject\\FinalProject\\src\\main\\resources\\mcq.txt");
 
         ScrollPane mainPane = new ScrollPane();
         Scene scene = new Scene(mainPane, 1080, 600);
