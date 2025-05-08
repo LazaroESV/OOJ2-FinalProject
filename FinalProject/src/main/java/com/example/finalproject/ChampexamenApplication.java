@@ -3,6 +3,7 @@ package com.example.finalproject;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -27,9 +28,10 @@ public class ChampexamenApplication extends Application {
     private ArrayList<String> attempts = new ArrayList<>();
 
 
+
     // Settings
-    private int width = 1080;
-    private int height = 600;
+    private int sceneWidth = 1080;
+    private int sceneHeight = 600;
 
     // Menu Items
     MenuItem open;
@@ -94,6 +96,26 @@ public class ChampexamenApplication extends Application {
             alert.setHeaderText("Champexamen Quiz App©");
             alert.show();
         });
+        about.setOnAction(e -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, """
+                    This quiz covers the topics seen\
+                    
+                    in weeks 10 to 12 of the Java 2 course\
+                    """);
+            alert.setTitle("About this Quiz");
+            alert.setHeaderText(null);
+            alert.show();
+        });
+        helpContent.setOnAction(e -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, """
+                    You don't need any help for this.\
+                    
+                    You can figure it out yourself ;)\
+                    """);
+            alert.setTitle("Help Content");
+            alert.setHeaderText(null);
+            alert.show();
+        });
 
         save.setOnAction(e -> {
             saveExamAnswers();
@@ -139,19 +161,43 @@ public class ChampexamenApplication extends Application {
             Stage window = new Stage();
 
             Label wTxt = new Label("Width: ");
-            wTxt.setAlignment(Pos.CENTER);
-            Slider wSlide = new Slider(100.0, 600.0, 600.0);
-            VBox width = new VBox(10, wTxt, wSlide);
+            Label wVal = new Label("1080");
+            HBox wLabel = new HBox(1, wTxt, wVal);
+            wLabel.setAlignment(Pos.CENTER);
+
+            Slider wSlide = new Slider(500, 1080, 1080);
+            wSlide.setOrientation(Orientation.VERTICAL);
+            wSlide.valueProperty().addListener(f -> {
+                stage.setWidth((int) wSlide.getValue());
+                wVal.setText(String.valueOf((int)wSlide.getValue()));
+            });
+
+            VBox width = new VBox(10, wLabel, wSlide);
 
             Label hTxt = new Label("Height: ");
-            hTxt.setAlignment(Pos.CENTER);
-            Slider hSlide = new Slider(500.0, 1080.0, 1080.0);
-            VBox height = new VBox(10, hTxt, hSlide);
+            Label hVal = new Label("600");
+            HBox hLabel = new HBox(1, hTxt, hVal);
+            hLabel.setAlignment(Pos.CENTER);
 
-            Button btn = new Button("Save");
+            Slider hSlide = new Slider(100, 600, 600);
+            hSlide.setOrientation(Orientation.VERTICAL);
+            hSlide.valueProperty().addListener(f -> {
+                stage.setHeight((int) hSlide.getValue());
+                hVal.setText(String.valueOf((int)hSlide.getValue()));
+            });
+
+            VBox height = new VBox(10, hLabel, hSlide);
+
+            HBox sliderBox = new HBox(100, width, height);
+            sliderBox.setAlignment(Pos.CENTER);
+
+            Button btn = new Button("Close");
             btn.setAlignment(Pos.CENTER);
+            btn.setOnAction(f -> {
+                window.close();
+            });
 
-            VBox mainBox = new VBox(30, width, height, btn);
+            VBox mainBox = new VBox(30, sliderBox, btn);
             mainBox.setAlignment(Pos.CENTER);
 
             Scene scene = new Scene(mainBox, 300, 300);
@@ -166,7 +212,7 @@ public class ChampexamenApplication extends Application {
         navBar.setAlignment(Pos.CENTER);
 
         root = new VBox(10, menu, topBanner, gradeBox, scrollPane, navBar);
-        Scene scene = new Scene(root, width, height);
+        Scene scene = new Scene(root, sceneWidth, sceneHeight);
         stage.setTitle("Champexamen: Champs Testing App");
         stage.setScene(scene);
         stage.show();
@@ -249,17 +295,17 @@ public class ChampexamenApplication extends Application {
     }
 
     public HBox buildTopBanner(){
-        Image logoImg = new Image("logo.png");
+        Image logoImg = new Image("CHAMPEXAMLOGO.png");
         ImageView logo = new ImageView(logoImg);
         logo.setPreserveRatio(true);
-        logo.setFitWidth(300);
+        logo.setFitWidth(150);
 
-        Image bannerImg = new Image("banner.png");
+        Image bannerImg = new Image("QuizTimeBanner.png");
         ImageView banner = new ImageView(bannerImg);
         banner.setPreserveRatio(true);
-        banner.setFitWidth(600);
+        banner.setFitWidth(150);
 
-        return new HBox(30, logo, banner);
+        return new HBox(50, logo, banner);
     }
     
     public HBox buildNavigationBar(){
